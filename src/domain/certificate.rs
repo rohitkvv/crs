@@ -1,6 +1,4 @@
-use actix_web::{
-    body::BoxBody, http::header::ContentType, HttpRequest, HttpResponse, Responder
-};
+use actix_web::{body::BoxBody, http::header::ContentType, HttpRequest, HttpResponse, Responder};
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 use uuid::Uuid;
@@ -28,12 +26,9 @@ impl Responder for Certificate {
         // Create response and set content type
         match body_result {
             Ok(body) => HttpResponse::Ok()
-                                .content_type(ContentType::json())
-                                .body(body),
-            Err(_) => HttpResponse::BadRequest()
-                        .body("Unable to serialize the response")
-            
+                .content_type(ContentType::json())
+                .body(body),
+            Err(_) => HttpResponse::BadRequest().body("Unable to serialize the response"),
         }
-        
     }
 }

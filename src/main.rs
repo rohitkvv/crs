@@ -1,7 +1,7 @@
-use actix_web::{web, App, HttpServer, middleware};
+use actix_web::{middleware, web, App, HttpServer};
+use crs::crs_service;
 use dotenvy::dotenv;
 use log::info;
-use crs::crs_service;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

@@ -1,4 +1,4 @@
-use actix_web::{ web, Either, HttpResponse, Responder };
+use actix_web::{web, Either, HttpResponse, Responder};
 use chrono::Utc;
 use uuid::Uuid;
 
@@ -20,21 +20,17 @@ pub async fn by_id(path: web::Path<(Uuid,)>) -> impl Responder {
                 score: 100,
                 progress: 100,
                 pe_points: 0,
-                acquired_date: Utc::now()
+                acquired_date: Utc::now(),
             },
             created_date: Utc::now(),
             updated_date: Utc::now(),
-        }) 
+        })
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use actix_web::{
-        dev::Service,
-        http::StatusCode,
-        test, App,
-    };
+    use actix_web::{dev::Service, http::StatusCode, test, App};
     use uuid::Uuid;
 
     use crate::crs_service;
