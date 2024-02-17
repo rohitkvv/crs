@@ -15,7 +15,7 @@ async fn main() -> std::io::Result<()> {
             // enable logger
             .wrap(middleware::Logger::default())
             // register scoped services
-            .service(web::scope("/api/certificates").configure(crs_service))
+            .service(web::scope("/api").configure(crs_service))
     })
     .bind(("127.0.0.1", 8080))?
     .run()

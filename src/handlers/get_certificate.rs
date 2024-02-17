@@ -57,7 +57,7 @@ mod tests {
         let certificate_id = Uuid::nil();
 
         let req = test::TestRequest::get()
-            .uri(&format!("/{certificate_id}"))
+            .uri(&format!("/certificates/{certificate_id}"))
             .to_request();
 
         let resp = app.call(req).await.unwrap();
