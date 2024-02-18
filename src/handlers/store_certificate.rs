@@ -10,7 +10,7 @@ pub(crate) struct CertificateDto {
     pub(crate) user_id: Uuid,
     pub(crate) account_id: Uuid,
     pub(crate) product_id: u32,
-    pub(crate) metadata: CertMetadataDto
+    pub(crate) metadata: CertMetadataDto,
 }
 
 #[derive(Deserialize)]
@@ -21,7 +21,6 @@ pub(crate) struct CertMetadataDto {
 }
 
 pub async fn index(certificate: web::Json<CertificateDto>) -> impl Responder {
-    
     // Implement proper validation
     if Uuid::is_nil(&certificate.user_id) || Uuid::is_nil(&certificate.account_id) {
         Either::Right(HttpResponse::BadRequest().body("Invalid ceritificate"))
@@ -45,9 +44,12 @@ pub async fn index(certificate: web::Json<CertificateDto>) -> impl Responder {
 
 #[cfg(test)]
 mod tests {
-    use actix_web::{dev::Service, http::{header, StatusCode}, test, App};
+    use actix_web::{
+        dev::Service,
+        http::{header, StatusCode},
+        test, App,
+    };
     use log::info;
-    
 
     use crate::crs_service;
 
