@@ -49,7 +49,6 @@ mod tests {
         http::{header, StatusCode},
         test, App,
     };
-    use log::info;
 
     use crate::crs_service;
 
@@ -65,11 +64,25 @@ mod tests {
             .set_payload(payload)
             .to_request();
 
-        let req_uri = req.path();
-        info!("{}", req_uri);
-
         let resp = app.call(req).await.unwrap();
 
         assert_eq!(resp.status(), StatusCode::OK);
+    }
+
+    #[actix_web::test]
+    async fn test_post_certificate_with_invalid_cert() {
+        let app = test::init_service(App::new().configure(crs_service)).await;
+
+        let payload = r#"{"user_id":"00000000-0000-0000-0000-000000000000","account_id":"7b80ffe8-910d-44fb-9a68-ff7c0eaba767","product_id":1,"metadata":{"score":100,"progress":100,"acquired_date":"2023-11-28T12:45:59.324310806Z"}}"#.as_bytes();
+
+        let req = test::TestRequest::post()
+            .insert_header((header::CONTENT_TYPE, "application/json"))
+            .uri("/api/certificates")
+            .set_payload(payload)
+            .to_request();
+
+        let resp = app.call(req).await.unwrap();
+
+        assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
     }
 }
