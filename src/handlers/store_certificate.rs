@@ -46,6 +46,7 @@ pub async fn index(certificate: web::Json<CertificateDto>) -> impl Responder {
 #[cfg(test)]
 mod tests {
     use actix_web::{dev::Service, http::{header, StatusCode}, test, App};
+    use log::info;
     
 
     use crate::crs_service;
@@ -58,9 +59,12 @@ mod tests {
 
         let req = test::TestRequest::post()
             .insert_header((header::CONTENT_TYPE, "application/json"))
-            .uri("/certificates")
+            .uri("/api/certificates")
             .set_payload(payload)
             .to_request();
+
+        let req_uri = req.path();
+        info!("{}", req_uri);
 
         let resp = app.call(req).await.unwrap();
 

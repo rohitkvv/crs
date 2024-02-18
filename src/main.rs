@@ -1,4 +1,4 @@
-use actix_web::{middleware, web, App, HttpServer};
+use actix_web::{middleware, App, HttpServer};
 use crs::crs_service;
 use dotenvy::dotenv;
 use log::info;
@@ -14,8 +14,8 @@ async fn main() -> std::io::Result<()> {
         App::new()
             // enable logger
             .wrap(middleware::Logger::default())
-            // register scoped services
-            .service(web::scope("/api").configure(crs_service))
+            // configure services
+            .configure(crs_service)
     })
     .bind(("127.0.0.1", 8080))?
     .run()
