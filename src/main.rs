@@ -1,7 +1,9 @@
-use actix_web::{middleware, App, HttpServer};
-use crs::crs_service;
+use actix_web::{middleware, web, App, HttpServer};
+use crs::{crs_service, db};
 use dotenvy::dotenv;
+
 use log::info;
+use db::init_db;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -10,10 +12,13 @@ async fn main() -> std::io::Result<()> {
 
     info!("Initializing CRS!");
 
-    HttpServer::new(|| {
+    let db = init_db().await;
+
+    HttpServer::new(move || {
         App::new()
             // enable logger
             .wrap(middleware::Logger::default())
+            .app_data(web::Data::new(db.clone()))
             // configure services
             .configure(crs_service)
     })

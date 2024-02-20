@@ -1,9 +1,12 @@
 use actix_web::{web, Either, HttpResponse, Responder};
 use chrono::{DateTime, Utc};
+use log::error;
+use mongodb::{Collection, Database};
 use serde::Deserialize;
 use uuid::Uuid;
 
-use crate::domain::{certificate::Certificate, certificate_metadata::Metadata};
+
+use crate::{db::CertificateModel, domain::{certificate::Certificate, certificate_metadata::Metadata}};
 
 #[derive(Deserialize)]
 pub(crate) struct CertificateDto {
@@ -20,25 +23,42 @@ pub(crate) struct CertMetadataDto {
     pub(crate) acquired_date: DateTime<Utc>,
 }
 
-pub async fn index(certificate: web::Json<CertificateDto>) -> impl Responder {
+pub async fn index(certificate: web::Json<CertificateDto>, data: web::Data<Option<Database>>) -> impl Responder {
     // Implement proper validation
     if Uuid::is_nil(&certificate.user_id) || Uuid::is_nil(&certificate.account_id) {
         Either::Right(HttpResponse::BadRequest().body("Invalid ceritificate"))
     } else {
-        Either::Left(Certificate {
-            id: Uuid::new_v4(),
-            user_id: certificate.user_id,
-            account_id: certificate.account_id,
-            product_id: certificate.product_id,
-            metadata: Metadata {
-                score: certificate.metadata.score,
-                progress: certificate.metadata.progress,
-                pe_points: 0,
-                acquired_date: certificate.metadata.acquired_date,
+        match data.into() {
+            Some(db) => {
+                let sample_cert = Certificate {
+                    id: Uuid::new_v4(),
+                    user_id: certificate.user_id,
+                    account_id: certificate.account_id,
+                    product_id: certificate.product_id,
+                    metadata: Metadata {
+                        score: certificate.metadata.score,
+                        progress: certificate.metadata.progress,
+                        pe_points: 0,
+                        acquired_date: certificate.metadata.acquired_date,
+                    },
+                    created_date: Utc::now(),
+                    updated_date: Utc::now(),
+                };
+                let doc = CertificateModel::convert(&sample_cert);
+                if let Some(database) = db.as_ref() {
+                    let coll: Collection<CertificateModel> = database.collection("certificates");
+                    if let Ok(_) = coll.insert_one(doc, None).await {
+                        return Either::Left(sample_cert)
+                    }
+                }
+                return Either::Right(HttpResponse::BadGateway().body("Save failed"));
             },
-            created_date: Utc::now(),
-            updated_date: Utc::now(),
-        })
+            None => {
+                error!("Invalid db instance");
+                return Either::Right(HttpResponse::BadRequest().body("Invalid ceritificate"));
+            }
+        }
+        
     }
 }
 
