@@ -51,7 +51,7 @@ pub struct CertificateModel {
     pub product_id: u32,
     pub metadata: CertificateMetadataModel,
     pub created_date: DateTime,
-    pub updated_date: DateTime,
+    pub updated_date: Option<DateTime>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -59,7 +59,7 @@ pub struct CertificateMetadataModel {
     pub score: u32,
     pub progress: u32,
     pub pe_points: u32,
-    pub acquired_date: DateTime,
+    pub acquired_date: Option<DateTime>,
 }
 
 impl CertificateModel {
@@ -73,10 +73,10 @@ impl CertificateModel {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
                 pe_points: certificate.metadata.pe_points,
-                acquired_date: DateTime::from_chrono(certificate.metadata.acquired_date),
+                acquired_date: Some(DateTime::from_chrono(certificate.metadata.acquired_date)),
             },
             created_date: DateTime::now(),
-            updated_date: DateTime::MIN,
+            updated_date: None,
         }
     }
 }
