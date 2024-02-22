@@ -9,3 +9,6 @@ Mongo express fails to run when added as a service as part of docker compose. So
 >>    -e ME_CONFIG_BASICAUTH_USERNAME="" \
 >>    -e ME_CONFIG_MONGODB_URL="mongodb://DB_NAME:27017" \
 >>    mongo-express
+
+## How to create a custom bridge network in docker
+>> docker network create **YOUR_NETWORK_BRIDGE_NAME**
