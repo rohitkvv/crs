@@ -1,12 +1,12 @@
 use actix_web::{web, Either, HttpResponse, Responder};
 use chrono::{DateTime, Utc};
-use log::error;
-use mongodb::{Collection, Database};
+use log::{error, info};
+use mongodb::Database;
 use serde::Deserialize;
 use uuid::Uuid;
 
 
-use crate::{db::CertificateModel, domain::{certificate::Certificate, certificate_metadata::Metadata}};
+use crate::{db::{CertificateModel,store_one}, domain::{certificate::Certificate, certificate_metadata::Metadata}};
 
 #[derive(Deserialize)]
 pub(crate) struct CertificateDto {
@@ -46,8 +46,8 @@ pub async fn index(certificate: web::Json<CertificateDto>, data: web::Data<Optio
                 };
                 let doc = CertificateModel::convert(&sample_cert);
                 if let Some(database) = db.as_ref() {
-                    let coll: Collection<CertificateModel> = database.collection("certificates");
-                    if let Ok(_) = coll.insert_one(doc, None).await {
+                    if let Some(insert_one_result) = store_one(database, &doc).await {
+                        info!("The inserted record id is: {}", insert_one_result.inserted_id);
                         return Either::Left(sample_cert)
                     }
                 }

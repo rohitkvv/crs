@@ -3,7 +3,7 @@ version: '3.1'
 services:
 
   db:
-    image: mongo
+    image: mongodb/mongodb-community-server
     container_name: crs-db
     restart: always
     environment:
@@ -11,6 +11,8 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD:${DB_PASSWORD}
     volumes:
       - ${VOLUME_PATH}:/data/db
+    ports:
+      - 27017:27017
     networks:
       - crs
 
