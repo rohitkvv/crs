@@ -5,8 +5,10 @@ use mongodb::Database;
 use serde::Deserialize;
 use uuid::Uuid;
 
-
-use crate::{db::{CertificateModel,store_one}, domain::{certificate::Certificate, certificate_metadata::Metadata}};
+use crate::{
+    db::{store_one, CertificateModel},
+    domain::{certificate::Certificate, certificate_metadata::Metadata},
+};
 
 #[derive(Deserialize)]
 pub(crate) struct CertificateDto {
@@ -23,7 +25,10 @@ pub(crate) struct CertMetadataDto {
     pub(crate) acquired_date: DateTime<Utc>,
 }
 
-pub async fn index(certificate: web::Json<CertificateDto>, data: web::Data<Option<Database>>) -> impl Responder {
+pub async fn index(
+    certificate: web::Json<CertificateDto>,
+    data: web::Data<Option<Database>>,
+) -> impl Responder {
     // Implement proper validation
     if Uuid::is_nil(&certificate.user_id) || Uuid::is_nil(&certificate.account_id) {
         Either::Right(HttpResponse::BadRequest().body("Invalid ceritificate"))
@@ -47,18 +52,20 @@ pub async fn index(certificate: web::Json<CertificateDto>, data: web::Data<Optio
                 let doc = CertificateModel::convert(&sample_cert);
                 if let Some(database) = db.as_ref() {
                     if let Some(insert_one_result) = store_one(database, &doc).await {
-                        info!("The inserted record id is: {}", insert_one_result.inserted_id);
-                        return Either::Left(sample_cert)
+                        info!(
+                            "The inserted record id is: {}",
+                            insert_one_result.inserted_id
+                        );
+                        return Either::Left(sample_cert);
                     }
                 }
                 return Either::Right(HttpResponse::BadGateway().body("Save failed"));
-            },
+            }
             None => {
                 error!("Invalid db instance");
                 return Either::Right(HttpResponse::BadRequest().body("Invalid ceritificate"));
             }
         }
-        
     }
 }
 

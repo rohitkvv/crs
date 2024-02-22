@@ -1,6 +1,6 @@
+pub mod db;
 mod domain;
 mod handlers;
-pub mod db;
 
 use actix_web::{web, HttpResponse};
 use handlers::{get_certificate, store_certificate};

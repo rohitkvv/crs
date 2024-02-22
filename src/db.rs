@@ -1,6 +1,11 @@
-use mongodb::{bson::{DateTime, Uuid}, options::ClientOptions, results::InsertOneResult, Client, Database};
+use mongodb::{
+    bson::{DateTime, Uuid},
+    options::ClientOptions,
+    results::InsertOneResult,
+    Client, Database,
+};
 
-use log::{info, error};
+use log::{error, info};
 use serde::{Deserialize, Serialize};
 
 use crate::domain::certificate::Certificate;
@@ -12,18 +17,20 @@ pub struct CrsState {
 pub async fn init_db() -> Option<Database> {
     info!("Initializing CRS DB!");
 
-    if let Ok(_uri) =  dotenvy::var("DB_CONN_STRING") {
-        let mut client_opts = ClientOptions::parse("mongodb://127.0.0.1:27017").await.unwrap();
+    if let Ok(_uri) = dotenvy::var("DB_CONN_STRING") {
+        let mut client_opts = ClientOptions::parse("mongodb://127.0.0.1:27017")
+            .await
+            .unwrap();
         client_opts.app_name = Some("CRS".to_string());
         match Client::with_options(client_opts) {
             Ok(client) => {
                 let db = client.database("crs");
                 return Some(db);
-            },
-            Err(_) => error!("Unable to initialize DB")
+            }
+            Err(_) => error!("Unable to initialize DB"),
         }
     }
-    
+
     error!("DB connection string is invalid!");
     None
 }
@@ -32,7 +39,7 @@ pub async fn store_one(db: &Database, doc: &CertificateModel) -> Option<InsertOn
     let coll = db.collection::<CertificateModel>("certificates");
     match coll.insert_one(doc, None).await {
         Ok(insert_one_result) => Some(insert_one_result),
-        Err(_) => None
+        Err(_) => None,
     }
 }
 
@@ -69,7 +76,7 @@ impl CertificateModel {
                 acquired_date: DateTime::from_chrono(certificate.metadata.acquired_date),
             },
             created_date: DateTime::now(),
-            updated_date: DateTime::MIN
+            updated_date: DateTime::MIN,
         }
     }
 }

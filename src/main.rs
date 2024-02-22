@@ -2,8 +2,8 @@ use actix_web::{middleware, web, App, HttpServer};
 use crs::{crs_service, db};
 use dotenvy::dotenv;
 
-use log::info;
 use db::init_db;
+use log::info;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
