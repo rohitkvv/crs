@@ -10,6 +10,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::domain::certificate::Certificate;
 
+pub const DB_NAME: &str = "crs";
+
 pub struct CrsState {
     pub db: Option<Database>,
 }
@@ -17,17 +19,17 @@ pub struct CrsState {
 pub async fn init_db() -> Option<Database> {
     info!("Initializing CRS DB!");
 
-    if let Ok(_uri) = dotenvy::var("DB_CONN_STRING") {
-        let mut client_opts = ClientOptions::parse("mongodb://127.0.0.1:27017")
+    if let Ok(uri) = dotenvy::var("DB_CONN_STRING") {
+        let mut client_opts = ClientOptions::parse(uri)
             .await
-            .unwrap();
+            .expect("Unable to create ClientOptions");
         client_opts.app_name = Some("CRS".to_string());
         match Client::with_options(client_opts) {
             Ok(client) => {
-                let db = client.database("crs");
+                let db = client.database(DB_NAME);
                 return Some(db);
             }
-            Err(_) => error!("Unable to initialize DB"),
+            Err(err) => error!("Unable to initialize DB. {}", err.to_string()),
         }
     }
 
