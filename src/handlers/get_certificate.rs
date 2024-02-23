@@ -40,9 +40,9 @@ pub async fn by_id(path: web::Path<(Uuid,)>, data: web::Data<Option<Database>>) 
                     }
                 }
 
-                return Either::Right(
+                Either::Right(
                     HttpResponse::InternalServerError().body("Failed to find certificate!"),
-                );
+                )
             }
             None => {
                 error!("Unable to read state data");

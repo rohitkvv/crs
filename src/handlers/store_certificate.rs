@@ -59,13 +59,13 @@ pub async fn index(
                         return Either::Left(sample_cert);
                     }
                 }
-                return Either::Right(
+                Either::Right(
                     HttpResponse::InternalServerError().body("Failed to store certificate!"),
-                );
+                )
             }
             None => {
                 error!("Invalid db instance");
-                return Either::Right(HttpResponse::BadRequest().body("Invalid ceritificate"));
+                Either::Right(HttpResponse::BadRequest().body("Invalid ceritificate"))
             }
         }
     }
