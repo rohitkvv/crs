@@ -1,5 +1,5 @@
 use mongodb::{
-    bson::{DateTime, Uuid},
+    bson::{DateTime, Uuid, doc},
     options::ClientOptions,
     results::InsertOneResult,
     Client, Database,
@@ -41,6 +41,14 @@ pub async fn store_one(db: &Database, doc: &CertificateModel) -> Option<InsertOn
     let coll = db.collection::<CertificateModel>("certificates");
     match coll.insert_one(doc, None).await {
         Ok(insert_one_result) => Some(insert_one_result),
+        Err(_) => None,
+    }
+}
+
+pub async fn find_certificate_by_id(db: &Database, certificate_id: uuid::Uuid) -> Option<CertificateModel> {
+    let coll = db.collection::<CertificateModel>("certificates");
+    match coll.find_one(doc! {"certificate_id": certificate_id}, None).await {
+        Ok(find_one_result) => find_one_result,
         Err(_) => None,
     }
 }
