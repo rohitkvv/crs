@@ -89,10 +89,13 @@ impl CertificateModel {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
                 pe_points: certificate.metadata.pe_points,
-                acquired_date: Some(DateTime::from_chrono(certificate.metadata.acquired_date)),
+                acquired_date: match certificate.metadata.acquired_date {
+                    Some(acquired_date) => Some(DateTime::from_chrono(acquired_date)),
+                    None => None
+                },
             },
-            created_date: DateTime::now(),
-            updated_date: None,
+            created_date: DateTime::from_chrono(certificate.created_date),
+            updated_date: Some(DateTime::now()),
         }
     }
 }

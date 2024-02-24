@@ -1,12 +1,11 @@
 use actix_web::{web, Either, HttpResponse, Responder};
-use chrono::Utc;
 use log::{error, info};
 use mongodb::Database;
 use uuid::Uuid;
 
 use crate::{
     db::find_certificate_by_id,
-    domain::{certificate::Certificate, certificate_metadata::Metadata},
+    domain::certificate::Certificate,
 };
 
 pub async fn by_id(path: web::Path<(Uuid,)>, data: web::Data<Option<Database>>) -> impl Responder {
@@ -19,24 +18,11 @@ pub async fn by_id(path: web::Path<(Uuid,)>, data: web::Data<Option<Database>>) 
         match data.into() {
             Some(db) => {
                 if let Some(database) = db.as_ref() {
-                    if let Some(find_result) =
+                    if let Some(certificate_model) =
                         find_certificate_by_id(database, certificate_id).await
                     {
-                        info!("{:?}", find_result);
-                        return Either::Left(Certificate {
-                            id: Uuid::new_v4(),
-                            user_id: Uuid::new_v4(),
-                            account_id: Uuid::new_v4(),
-                            product_id: 1,
-                            metadata: Metadata {
-                                score: 100,
-                                progress: 100,
-                                pe_points: 0,
-                                acquired_date: Utc::now(),
-                            },
-                            created_date: Utc::now(),
-                            updated_date: Utc::now(),
-                        });
+                        info!("{:?}", certificate_model);
+                        return Either::Left(Certificate::from_model(certificate_model));
                     }
                 }
 

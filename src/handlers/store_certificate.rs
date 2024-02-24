@@ -1,29 +1,13 @@
 use actix_web::{web, Either, HttpResponse, Responder};
-use chrono::{DateTime, Utc};
 use log::{error, info};
 use mongodb::Database;
-use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::{
     db::{store_one, CertificateModel},
-    domain::{certificate::Certificate, certificate_metadata::Metadata},
+    domain::certificate::Certificate,
+    dto::certificate_dto::CertificateDto,
 };
-
-#[derive(Deserialize)]
-pub(crate) struct CertificateDto {
-    pub(crate) user_id: Uuid,
-    pub(crate) account_id: Uuid,
-    pub(crate) product_id: u32,
-    pub(crate) metadata: CertMetadataDto,
-}
-
-#[derive(Deserialize)]
-pub(crate) struct CertMetadataDto {
-    pub(crate) score: u32,
-    pub(crate) progress: u32,
-    pub(crate) acquired_date: DateTime<Utc>,
-}
 
 pub async fn index(
     certificate: web::Json<CertificateDto>,
@@ -35,28 +19,15 @@ pub async fn index(
     } else {
         match data.into() {
             Some(db) => {
-                let sample_cert = Certificate {
-                    id: Uuid::new_v4(),
-                    user_id: certificate.user_id,
-                    account_id: certificate.account_id,
-                    product_id: certificate.product_id,
-                    metadata: Metadata {
-                        score: certificate.metadata.score,
-                        progress: certificate.metadata.progress,
-                        pe_points: 0,
-                        acquired_date: certificate.metadata.acquired_date,
-                    },
-                    created_date: Utc::now(),
-                    updated_date: Utc::now(),
-                };
-                let doc = CertificateModel::convert(&sample_cert);
+                let cert_to_store = Certificate::from_dto(certificate.0);
+                let doc = CertificateModel::convert(&cert_to_store);
                 if let Some(database) = db.as_ref() {
                     if let Some(insert_one_result) = store_one(database, &doc).await {
                         info!(
                             "The inserted record id is: {}",
                             insert_one_result.inserted_id
                         );
-                        return Either::Left(sample_cert);
+                        return Either::Left(cert_to_store);
                     }
                 }
                 Either::Right(
