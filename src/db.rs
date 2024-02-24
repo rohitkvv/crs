@@ -51,7 +51,10 @@ pub async fn find_certificate_by_id(
 ) -> Option<CertificateModel> {
     let coll = db.collection::<CertificateModel>("certificates");
     match coll
-        .find_one(doc! {"certificate_id": Uuid::from_uuid_1(certificate_id)}, None)
+        .find_one(
+            doc! {"certificate_id": Uuid::from_uuid_1(certificate_id)},
+            None,
+        )
         .await
     {
         Ok(find_one_result) => find_one_result,
@@ -91,7 +94,7 @@ impl CertificateModel {
                 pe_points: certificate.metadata.pe_points,
                 acquired_date: match certificate.metadata.acquired_date {
                     Some(acquired_date) => Some(DateTime::from_chrono(acquired_date)),
-                    None => None
+                    None => None,
                 },
             },
             created_date: DateTime::from_chrono(certificate.created_date),

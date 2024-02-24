@@ -3,10 +3,7 @@ use log::{error, info};
 use mongodb::Database;
 use uuid::Uuid;
 
-use crate::{
-    db::find_certificate_by_id,
-    domain::certificate::Certificate,
-};
+use crate::{db::find_certificate_by_id, domain::certificate::Certificate};
 
 pub async fn by_id(path: web::Path<(Uuid,)>, data: web::Data<Option<Database>>) -> impl Responder {
     let certificate_id = path.into_inner().0;
@@ -51,7 +48,8 @@ mod tests {
 
     use crate::{
         crs_service,
-        db::{init_db, CertificateModel}, domain::{certificate::Certificate, certificate_metadata::Metadata},
+        db::{init_db, CertificateModel},
+        domain::{certificate::Certificate, certificate_metadata::Metadata},
     };
 
     #[actix_web::test]
@@ -60,8 +58,7 @@ mod tests {
         let db = init_db().await.expect("failed to connect");
         // Clear any data currently in the certificates collection.
         let coll = &db.collection::<CertificateModel>("certificates");
-        coll
-            .drop(None)
+        coll.drop(None)
             .await
             .expect("drop collection should succeed");
 
@@ -84,16 +81,15 @@ mod tests {
                 acquired_date: Some(Utc::now()),
             },
             created_date: Utc::now(),
-            updated_date: None, 
+            updated_date: None,
         };
 
         let certificate_model = CertificateModel::convert(&certificate);
         // Insert a document into the collection.
-        coll
-            .insert_one(certificate_model, None)
+        coll.insert_one(certificate_model, None)
             .await
             .expect("insert one into collection should succeed");
-        
+
         let certificate_id = certificate.id;
         let req = test::TestRequest::get()
             .uri(&format!("/api/certificates/{certificate_id}"))
