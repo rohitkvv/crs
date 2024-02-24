@@ -46,10 +46,7 @@ impl Certificate {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
                 pe_points: 0,
-                acquired_date: match certificate.metadata.acquired_date {
-                    Some(dt) => Some(dt),
-                    None => None,
-                },
+                acquired_date: certificate.metadata.acquired_date,
             },
             created_date: Utc::now(),
             updated_date: None,
@@ -66,16 +63,10 @@ impl Certificate {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
                 pe_points: 0,
-                acquired_date: match certificate.metadata.acquired_date {
-                    Some(dt) => Some(dt.into()),
-                    None => None,
-                },
+                acquired_date: certificate.metadata.acquired_date.map(|dt| dt.into()),
             },
             created_date: certificate.created_date.into(),
-            updated_date: match certificate.updated_date {
-                Some(dt) => Some(dt.into()),
-                None => None,
-            },
+            updated_date: certificate.updated_date.map(|dt| dt.into()),
         }
     }
 }
