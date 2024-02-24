@@ -42,23 +42,25 @@ pub async fn by_id(path: web::Path<(Uuid,)>, data: web::Data<Option<Database>>) 
 mod tests {
     use actix_web::{
         dev::Service,
-        http::{header, StatusCode},
-        test::{self, call_and_read_body_json},
+        http::StatusCode,
+        test::{self},
         web, App,
     };
+    use chrono::Utc;
     use uuid::Uuid;
 
     use crate::{
         crs_service,
-        db::{init_db, CertificateModel},
+        db::{init_db, CertificateModel}, domain::{certificate::Certificate, certificate_metadata::Metadata},
     };
 
     #[actix_web::test]
     #[ignore = "requires MongoDB instance running"]
     async fn find_certificate_by_valid_id() {
         let db = init_db().await.expect("failed to connect");
-        // Clear any data currently in the users collection.
-        db.collection::<CertificateModel>("certificates")
+        // Clear any data currently in the certificates collection.
+        let coll = &db.collection::<CertificateModel>("certificates");
+        coll
             .drop(None)
             .await
             .expect("drop collection should succeed");
@@ -70,18 +72,29 @@ mod tests {
         )
         .await;
 
-        let payload = r#"{"user_id":"a2382a52-2e84-4db6-bcd9-4fe378a92b10","account_id":"7b80ffe8-910d-44fb-9a68-ff7c0eaba767","product_id":1,"metadata":{"score":100,"progress":100,"acquired_date":"2023-11-28T12:45:59.324310806Z"}}"#.as_bytes();
+        let certificate = Certificate {
+            id: Uuid::new_v4(),
+            user_id: Uuid::new_v4(),
+            account_id: Uuid::new_v4(),
+            product_id: 1,
+            metadata: Metadata {
+                score: 50,
+                progress: 50,
+                pe_points: 1,
+                acquired_date: Some(Utc::now()),
+            },
+            created_date: Utc::now(),
+            updated_date: None, 
+        };
 
-        let post_req = test::TestRequest::post()
-            .insert_header((header::CONTENT_TYPE, "application/json"))
-            .uri("/api/certificates")
-            .set_payload(payload)
-            .to_request();
-
-        let post_response: CertificateModel = call_and_read_body_json(&app, post_req).await;
-
-        let certificate_id = post_response.certificate_id;
-
+        let certificate_model = CertificateModel::convert(&certificate);
+        // Insert a document into the collection.
+        coll
+            .insert_one(certificate_model, None)
+            .await
+            .expect("insert one into collection should succeed");
+        
+        let certificate_id = certificate.id;
         let req = test::TestRequest::get()
             .uri(&format!("/api/certificates/{certificate_id}"))
             .to_request();
