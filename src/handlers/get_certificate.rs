@@ -47,10 +47,7 @@ mod tests {
     };
     use uuid::Uuid;
 
-    use crate::{
-        crs_service,
-        db::init_db,
-    };
+    use crate::{crs_service, db::init_db};
 
     #[actix_web::test]
     #[ignore = "requires MongoDB instance running"]

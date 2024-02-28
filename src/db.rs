@@ -92,7 +92,10 @@ impl CertificateModel {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
                 pe_points: certificate.metadata.pe_points,
-                acquired_date: certificate.metadata.acquired_date.map(DateTime::from_chrono),
+                acquired_date: certificate
+                    .metadata
+                    .acquired_date
+                    .map(DateTime::from_chrono),
             },
             created_date: DateTime::from_chrono(certificate.created_date),
             updated_date: Some(DateTime::now()),
