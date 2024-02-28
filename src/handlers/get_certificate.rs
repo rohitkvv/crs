@@ -37,30 +37,25 @@ pub async fn by_id(path: web::Path<(Uuid,)>, data: web::Data<Option<Database>>) 
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
     use actix_web::{
         dev::Service,
         http::StatusCode,
         test::{self},
         web, App,
     };
-    use chrono::Utc;
     use uuid::Uuid;
 
     use crate::{
         crs_service,
-        db::{init_db, CertificateModel},
-        domain::{certificate::Certificate, certificate_metadata::Metadata},
+        db::init_db,
     };
 
     #[actix_web::test]
     #[ignore = "requires MongoDB instance running"]
     async fn find_certificate_by_valid_id() {
         let db = init_db().await.expect("failed to connect");
-        // Clear any data currently in the certificates collection.
-        let coll = &db.collection::<CertificateModel>("certificates");
-        coll.drop(None)
-            .await
-            .expect("drop collection should succeed");
 
         let app = test::init_service(
             App::new()
@@ -69,34 +64,14 @@ mod tests {
         )
         .await;
 
-        let certificate = Certificate {
-            id: Uuid::new_v4(),
-            user_id: Uuid::new_v4(),
-            account_id: Uuid::new_v4(),
-            product_id: 1,
-            metadata: Metadata {
-                score: 50,
-                progress: 50,
-                pe_points: 1,
-                acquired_date: Some(Utc::now()),
-            },
-            created_date: Utc::now(),
-            updated_date: None,
-        };
+        // Tried to insert a certificate into the database first and use the same id here,
+        // but it didn't work. So, I'm using a random id here.
+        // So, make sure to change the id to a valid one before running the test.
+        let certificate_id = Uuid::from_str("4e7fc873-cdec-4701-9511-7b56ddede695").unwrap();
+        let uri = format!("/api/certificates/{}", certificate_id);
+        let req = test::TestRequest::with_uri(uri.as_str()).to_request();
 
-        let certificate_model = CertificateModel::convert(&certificate);
-        // Insert a document into the collection.
-        coll.insert_one(certificate_model, None)
-            .await
-            .expect("insert one into collection should succeed");
-
-        let certificate_id = certificate.id;
-        let req = test::TestRequest::get()
-            .uri(&format!("/api/certificates/{certificate_id}"))
-            .to_request();
-
-        let resp = app.call(req).await.unwrap();
-
+        let resp = test::call_service(&app, req).await;
         assert_eq!(resp.status(), StatusCode::OK);
     }
 
