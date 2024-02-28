@@ -11,7 +11,7 @@ use super::certificate_metadata::Metadata;
 pub struct Certificate {
     pub id: Uuid,
     pub user_id: Uuid,
-    pub account_id: Uuid,
+    pub account_id: u32,
     pub product_id: u32,
     pub metadata: Metadata,
     pub created_date: DateTime<Utc>,
@@ -45,7 +45,6 @@ impl Certificate {
             metadata: Metadata {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
-                pe_points: 0,
                 acquired_date: certificate.metadata.acquired_date,
             },
             created_date: Utc::now(),
@@ -57,12 +56,11 @@ impl Certificate {
         Certificate {
             id: certificate.certificate_id.into(),
             user_id: certificate.user_id.into(),
-            account_id: certificate.account_id.into(),
+            account_id: certificate.account_id,
             product_id: certificate.product_id,
             metadata: Metadata {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
-                pe_points: 0,
                 acquired_date: certificate.metadata.acquired_date.map(|dt| dt.into()),
             },
             created_date: certificate.created_date.into(),

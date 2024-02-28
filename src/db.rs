@@ -8,7 +8,7 @@ use mongodb::{
 use log::{error, info};
 use serde::{Deserialize, Serialize};
 
-use crate::domain::certificate::Certificate;
+use crate::{domain::certificate::Certificate, helpers::SaveType};
 
 pub const DB_NAME: &str = "crs";
 
@@ -66,7 +66,7 @@ pub async fn find_certificate_by_id(
 pub struct CertificateModel {
     pub certificate_id: Uuid,
     pub user_id: Uuid,
-    pub account_id: Uuid,
+    pub account_id: u32,
     pub product_id: u32,
     pub metadata: CertificateMetadataModel,
     pub created_date: DateTime,
@@ -77,28 +77,29 @@ pub struct CertificateModel {
 pub struct CertificateMetadataModel {
     pub score: u32,
     pub progress: u32,
-    pub pe_points: u32,
     pub acquired_date: Option<DateTime>,
 }
 
 impl CertificateModel {
-    pub fn convert(certificate: &Certificate) -> CertificateModel {
+    pub fn convert(certificate: &Certificate, save_type: SaveType) -> CertificateModel {
         CertificateModel {
             certificate_id: Uuid::default(),
             user_id: Uuid::from_uuid_1(certificate.user_id),
-            account_id: Uuid::from_uuid_1(certificate.account_id),
+            account_id: certificate.account_id,
             product_id: certificate.product_id,
             metadata: CertificateMetadataModel {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
-                pe_points: certificate.metadata.pe_points,
                 acquired_date: certificate
                     .metadata
                     .acquired_date
                     .map(DateTime::from_chrono),
             },
             created_date: DateTime::from_chrono(certificate.created_date),
-            updated_date: Some(DateTime::now()),
+            updated_date: match save_type {
+                SaveType::Insert => None,
+                SaveType::Update => Some(DateTime::now()),
+            },
         }
     }
 }

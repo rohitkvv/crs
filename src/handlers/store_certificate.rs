@@ -6,7 +6,7 @@ use uuid::Uuid;
 use crate::{
     db::{store_one, CertificateModel},
     domain::certificate::Certificate,
-    dto::certificate_dto::CertificateDto,
+    dto::certificate_dto::CertificateDto, helpers::SaveType,
 };
 
 pub async fn index(
@@ -14,13 +14,13 @@ pub async fn index(
     data: web::Data<Option<Database>>,
 ) -> impl Responder {
     // Implement proper validation
-    if Uuid::is_nil(&certificate.user_id) || Uuid::is_nil(&certificate.account_id) {
+    if Uuid::is_nil(&certificate.user_id) || certificate.account_id == 0 || certificate.product_id == 0{
         Either::Right(HttpResponse::BadRequest().body("Invalid ceritificate"))
     } else {
         match data.into() {
             Some(db) => {
                 let cert_to_store = Certificate::from_dto(certificate.0);
-                let doc = CertificateModel::convert(&cert_to_store);
+                let doc = CertificateModel::convert(&cert_to_store, SaveType::Insert);
                 if let Some(database) = db.as_ref() {
                     if let Some(insert_one_result) = store_one(database, &doc).await {
                         info!(
@@ -73,7 +73,7 @@ mod tests {
         )
         .await;
 
-        let payload = r#"{"user_id":"a2382a52-2e84-4db6-bcd9-4fe378a92b10","account_id":"7b80ffe8-910d-44fb-9a68-ff7c0eaba767","product_id":1,"metadata":{"score":100,"progress":100,"acquired_date":"2023-11-28T12:45:59.324310806Z"}}"#.as_bytes();
+        let payload = r#"{"user_id":"a2382a52-2e84-4db6-bcd9-4fe378a92b10","account_id":20,"product_id":15,"metadata":{"score":100,"progress":100,"acquired_date":"2023-11-28T12:45:59.324310806Z"}}"#.as_bytes();
 
         let req = test::TestRequest::post()
             .insert_header((header::CONTENT_TYPE, "application/json"))
@@ -103,7 +103,7 @@ mod tests {
                 .configure(crs_service),
         )
         .await;
-        let payload = r#"{"user_id":"00000000-0000-0000-0000-000000000000","account_id":"7b80ffe8-910d-44fb-9a68-ff7c0eaba767","product_id":1,"metadata":{"score":100,"progress":100,"acquired_date":"2023-11-28T12:45:59.324310806Z"}}"#.as_bytes();
+        let payload = r#"{"user_id":"00000000-0000-0000-0000-000000000000","account_id":20,"product_id":15,"metadata":{"score":100,"progress":100,"acquired_date":"2023-11-28T12:45:59.324310806Z"}}"#.as_bytes();
 
         let req = test::TestRequest::post()
             .insert_header((header::CONTENT_TYPE, "application/json"))
