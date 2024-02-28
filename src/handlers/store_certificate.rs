@@ -6,7 +6,8 @@ use uuid::Uuid;
 use crate::{
     db::{store_one, CertificateModel},
     domain::certificate::Certificate,
-    dto::certificate_dto::CertificateDto, helpers::SaveType,
+    dto::certificate_dto::CertificateDto,
+    helpers::SaveType,
 };
 
 pub async fn index(
@@ -14,7 +15,10 @@ pub async fn index(
     data: web::Data<Option<Database>>,
 ) -> impl Responder {
     // Implement proper validation
-    if Uuid::is_nil(&certificate.user_id) || certificate.account_id == 0 || certificate.product_id == 0{
+    if Uuid::is_nil(&certificate.user_id)
+        || certificate.account_id == 0
+        || certificate.product_id == 0
+    {
         Either::Right(HttpResponse::BadRequest().body("Invalid ceritificate"))
     } else {
         match data.into() {
