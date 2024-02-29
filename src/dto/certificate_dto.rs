@@ -52,6 +52,9 @@ impl CertificateDto {
     /// assert_eq!(certificate.is_valid(), false);
     /// ```
     pub fn is_valid(&self) -> bool {
-        !self.user_id.is_nil() && !self.user_id.is_max() && self.account_id != 0 && self.product_id != 0
+        !self.user_id.is_nil()
+            && !self.user_id.is_max()
+            && self.account_id != 0
+            && self.product_id != 0
     }
 }
