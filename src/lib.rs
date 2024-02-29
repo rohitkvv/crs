@@ -1,6 +1,6 @@
 pub mod db;
-mod domain;
-mod dto;
+pub mod domain;
+pub mod dto;
 mod handlers;
 mod helpers;
 

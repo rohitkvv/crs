@@ -76,7 +76,7 @@ pub struct CertificateModel {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CertificateMetadataModel {
     pub score: u32,
-    pub progress: u32,
+    pub progress: f32,
     pub acquired_date: Option<DateTime>,
 }
 
