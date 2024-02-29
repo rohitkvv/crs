@@ -68,5 +68,6 @@ impl CertificateDto {
             && !self.user_id.is_max()
             && self.account_id != 0
             && self.product_id != 0
+            && self.metadata.is_valid()
     }
 }

@@ -1,7 +1,6 @@
 use actix_web::{web, Either, HttpResponse, Responder};
 use log::{error, info};
 use mongodb::Database;
-use uuid::Uuid;
 
 use crate::{
     db::{store_one, CertificateModel},

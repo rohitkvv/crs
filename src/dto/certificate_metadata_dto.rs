@@ -11,6 +11,9 @@ pub struct CertificateMetadataDto {
 
 impl CertificateMetadataDto {
     /// Validates the certificate metadata
+    /// # Returns
+    /// **true** if the certificate metadata is valid, otherwise **false**
+    ///
     /// # Examples
     ///
     /// ```
@@ -24,8 +27,10 @@ impl CertificateMetadataDto {
     /// };
     /// assert_eq!(metadata.is_valid(), true);
     /// ```
+    /// ---
     ///
     /// ```
+    ///
     /// use pretty_assertions::assert_eq;
     /// use crs::dto::certificate_metadata_dto::CertificateMetadataDto;
     ///
