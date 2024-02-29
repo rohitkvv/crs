@@ -81,7 +81,7 @@ pub struct CertificateMetadataModel {
 }
 
 impl CertificateModel {
-    pub fn convert(certificate: &Certificate, save_type: SaveType) -> CertificateModel {
+    pub fn from_domain(certificate: &Certificate, save_type: SaveType) -> CertificateModel {
         CertificateModel {
             certificate_id: Uuid::default(),
             user_id: Uuid::from_uuid_1(certificate.user_id),

@@ -1,5 +1,5 @@
 use actix_web::{web, Either, HttpResponse, Responder};
-use log::{error, info};
+use log::error;
 use mongodb::Database;
 use uuid::Uuid;
 
@@ -8,8 +8,7 @@ use crate::{db::find_certificate_by_id, domain::certificate::Certificate};
 pub async fn by_id(path: web::Path<(Uuid,)>, data: web::Data<Option<Database>>) -> impl Responder {
     let certificate_id = path.into_inner().0;
 
-    // Implement proper validation
-    if Uuid::is_nil(&certificate_id) {
+    if Uuid::is_nil(&certificate_id) || Uuid::is_max(&certificate_id) {
         Either::Right(HttpResponse::BadRequest().body("Invalid ceritificate id"))
     } else {
         match data.into() {
@@ -18,7 +17,6 @@ pub async fn by_id(path: web::Path<(Uuid,)>, data: web::Data<Option<Database>>) 
                     if let Some(certificate_model) =
                         find_certificate_by_id(database, certificate_id).await
                     {
-                        info!("{:?}", certificate_model);
                         return Either::Left(Certificate::from_model(certificate_model));
                     }
                 }

@@ -19,7 +19,7 @@ pub async fn index(
         match data.into() {
             Some(db) => {
                 let cert_to_store = Certificate::from_dto(certificate.0);
-                let doc = CertificateModel::convert(&cert_to_store, SaveType::Insert);
+                let doc = CertificateModel::from_domain(&cert_to_store, SaveType::Insert);
                 if let Some(database) = db.as_ref() {
                     if let Some(insert_one_result) = store_one(database, &doc).await {
                         info!(
