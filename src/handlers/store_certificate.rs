@@ -14,8 +14,7 @@ pub async fn index(
     certificate: web::Json<CertificateDto>,
     data: web::Data<Option<Database>>,
 ) -> impl Responder {
-    if !CertificateDto::is_valid(&certificate)
-    {
+    if !CertificateDto::is_valid(&certificate) {
         Either::Right(HttpResponse::BadRequest().body("Invalid ceritificate"))
     } else {
         match data.into() {

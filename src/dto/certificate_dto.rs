@@ -15,7 +15,7 @@ pub struct CertificateDto {
 impl CertificateDto {
     /// Validates the certificate dto and indicates if it is valid or not
     ///
-    /// # Returns 
+    /// # Returns
     /// **true** if the certificate dto is valid, otherwise **false**
     ///
     /// # Examples
