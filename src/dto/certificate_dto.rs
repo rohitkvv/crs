@@ -13,10 +13,15 @@ pub struct CertificateDto {
 }
 
 impl CertificateDto {
-    /// Validates the certificate
+    /// Validates the certificate dto and indicates if it is valid or not
+    ///
+    /// # Returns 
+    /// **true** if the certificate dto is valid, otherwise **false**
+    ///
     /// # Examples
     ///
     /// ```
+    ///
     /// use pretty_assertions::assert_eq;
     /// use crs::dto::{certificate_dto::CertificateDto, certificate_metadata_dto::CertificateMetadataDto};
     /// use uuid::Uuid;
@@ -31,10 +36,15 @@ impl CertificateDto {
     ///         acquired_date: None,
     ///     },
     /// };
+    ///
     /// assert_eq!(certificate.is_valid(), true);
-    /// ```
     ///
     /// ```
+    ///
+    /// ---
+    ///
+    /// ```
+    ///
     /// use pretty_assertions::assert_eq;
     /// use crs::dto::{certificate_dto::CertificateDto, certificate_metadata_dto::CertificateMetadataDto};
     /// use uuid::Uuid;
@@ -49,7 +59,9 @@ impl CertificateDto {
     ///         acquired_date: None,
     ///     },
     /// };
+    ///
     /// assert_eq!(certificate.is_valid(), false);
+    ///
     /// ```
     pub fn is_valid(&self) -> bool {
         !self.user_id.is_nil()

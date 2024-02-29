@@ -14,10 +14,7 @@ pub async fn index(
     certificate: web::Json<CertificateDto>,
     data: web::Data<Option<Database>>,
 ) -> impl Responder {
-    // Implement proper validation
-    if Uuid::is_nil(&certificate.user_id)
-        || certificate.account_id == 0
-        || certificate.product_id == 0
+    if !CertificateDto::is_valid(&certificate)
     {
         Either::Right(HttpResponse::BadRequest().body("Invalid ceritificate"))
     } else {
