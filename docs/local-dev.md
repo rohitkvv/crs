@@ -12,3 +12,8 @@ Mongo express fails to run when added as a service as part of docker compose. So
 
 ## How to create a custom bridge network in docker
 >> docker network create **YOUR_NETWORK_BRIDGE_NAME**
+
+## How to compose the app
+Following points are important to note:
+- Configure the server to listen on `0.0.0.0` instead of `127.0.0.1` when running in docker container. When running in a Docker container, `127.0.0.1` refers to the container's network namespace, not the host machine's.
+- The host name in database connection string to refer to the service name of docker compose. Ex: `db`
