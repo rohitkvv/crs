@@ -1,12 +1,10 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use super::error::AccreditationStatusError;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Accreditation {
-    pub id: Uuid,
     pub name: String,
     pub institution: String,
     pub start_date: DateTime<Utc>,

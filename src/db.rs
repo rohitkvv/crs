@@ -83,7 +83,6 @@ pub struct CertificateMetadataModel {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AccreditationModel {
-    pub id: Uuid,
     pub name: String,
     pub institution: String,
     pub start_date: DateTime,
@@ -110,7 +109,6 @@ impl CertificateModel {
                     .accreditation
                     .as_ref()
                     .map(|accreditation| AccreditationModel {
-                        id: Uuid::from_uuid_1(accreditation.id),
                         name: accreditation.name.clone(),
                         institution: accreditation.institution.clone(),
                         start_date: DateTime::from_chrono(accreditation.start_date),
