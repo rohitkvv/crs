@@ -114,9 +114,7 @@ impl CertificateModel {
                         name: accreditation.name.clone(),
                         institution: accreditation.institution.clone(),
                         start_date: DateTime::from_chrono(accreditation.start_date),
-                        end_date: accreditation
-                            .end_date
-                            .map(DateTime::from_chrono),
+                        end_date: accreditation.end_date.map(DateTime::from_chrono),
                         status: accreditation.status.to_string(),
                     }),
             },
