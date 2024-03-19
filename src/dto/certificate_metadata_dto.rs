@@ -1,6 +1,5 @@
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
-use uuid::Uuid;
 
 /// Certificate metadata data transfer object
 #[derive(Deserialize)]
@@ -52,7 +51,6 @@ impl CertificateMetadataDto {
 
 #[derive(Deserialize, Debug)]
 pub struct AccreditationDto {
-    pub id: Uuid,
     pub name: String,
     pub institution: String,
     pub start_date: DateTime<Utc>,

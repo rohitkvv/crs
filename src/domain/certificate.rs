@@ -77,7 +77,7 @@ impl Certificate {
                 acquired_date: certificate.metadata.acquired_date,
                 accreditation: certificate.metadata.accreditation.map(|accreditation| {
                     Accreditation {
-                        id: accreditation.id,
+                        id: Uuid::new_v4(),
                         name: accreditation.name,
                         institution: accreditation.institution,
                         start_date: accreditation.start_date,
