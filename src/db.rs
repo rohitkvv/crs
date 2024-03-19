@@ -93,7 +93,7 @@ pub struct AccreditationModel {
 impl CertificateModel {
     pub fn from_domain(certificate: &Certificate, save_type: SaveType) -> CertificateModel {
         CertificateModel {
-            certificate_id: Uuid::default(),
+            certificate_id: Uuid::from_uuid_1(certificate.id),
             user_id: Uuid::from_uuid_1(certificate.user_id),
             account_id: certificate.account_id,
             product_id: certificate.product_id,
