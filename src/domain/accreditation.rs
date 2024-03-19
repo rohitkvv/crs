@@ -2,6 +2,8 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use super::error::AccreditationStatusError;
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Accreditation {
     pub id: Uuid,
@@ -26,13 +28,13 @@ impl AccreditationStatus {
     /// # Panics
     ///
     /// Panics if the status is not valid
-    pub fn from_str(status: &str) -> AccreditationStatus {
+    pub fn from_status_str(status: &str) -> Result<AccreditationStatus, AccreditationStatusError> {
         match status {
-            "Pending" | "pending" => AccreditationStatus::Pending,
-            "Active" | "active" => AccreditationStatus::Active,
-            "Expired" | "expired" => AccreditationStatus::Expired,
-            "Revoked" | "revoked" => AccreditationStatus::Revoked,
-            _ => panic!("Invalid accreditation status"),
+            "Pending" | "pending" => Ok(AccreditationStatus::Pending),
+            "Active" | "active" => Ok(AccreditationStatus::Active),
+            "Expired" | "expired" => Ok(AccreditationStatus::Expired),
+            "Revoked" | "revoked" => Ok(AccreditationStatus::Revoked),
+            _ => Err(AccreditationStatusError),
         }
     }
 }

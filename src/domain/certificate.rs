@@ -5,7 +5,10 @@ use uuid::Uuid;
 
 use crate::{db::CertificateModel, dto::certificate_dto::CertificateDto};
 
-use super::{accreditation::{Accreditation, AccreditationStatus}, certificate_metadata::Metadata};
+use super::{
+    accreditation::{Accreditation, AccreditationStatus},
+    certificate_metadata::Metadata,
+};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Certificate {
@@ -79,9 +82,12 @@ impl Certificate {
                         institution: accreditation.institution,
                         start_date: accreditation.start_date,
                         end_date: accreditation.end_date,
-                        status: AccreditationStatus::from_str(&accreditation.status),
+                        status: match AccreditationStatus::from_status_str(&accreditation.status) {
+                            Ok(status) => status,
+                            Err(_) => panic!("Invalid status"),
+                        },
                     }
-                })
+                }),
             },
             created_date: Utc::now(),
             updated_date: None,
@@ -133,7 +139,10 @@ impl Certificate {
                         institution: accreditation.institution,
                         start_date: accreditation.start_date.into(),
                         end_date: accreditation.end_date.map(|dt| dt.into()),
-                        status: AccreditationStatus::from_str(&accreditation.status),
+                        status: match AccreditationStatus::from_status_str(&accreditation.status) {
+                            Ok(status) => status,
+                            Err(_) => panic!("Invalid status"),
+                        },
                     }
                 }),
             },
