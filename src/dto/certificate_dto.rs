@@ -34,6 +34,7 @@ impl CertificateDto {
     ///         score: 0,
     ///         progress: 0.5,
     ///         acquired_date: None,
+    ///         accreditation: None,
     ///     },
     /// };
     ///
@@ -57,6 +58,7 @@ impl CertificateDto {
     ///         score: 0,
     ///         progress: 0.5,
     ///         acquired_date: None,
+    ///         accreditation: None,
     ///     },
     /// };
     ///

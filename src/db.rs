@@ -78,6 +78,17 @@ pub struct CertificateMetadataModel {
     pub score: u32,
     pub progress: f32,
     pub acquired_date: Option<DateTime>,
+    pub accreditation: Option<AccreditationModel>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AccreditationModel {
+    pub id: Uuid,
+    pub name: String,
+    pub institution: String,
+    pub start_date: DateTime,
+    pub end_date: Option<DateTime>,
+    pub status: String,
 }
 
 impl CertificateModel {
@@ -94,6 +105,18 @@ impl CertificateModel {
                     .metadata
                     .acquired_date
                     .map(DateTime::from_chrono),
+                accreditation: certificate.metadata.accreditation.as_ref().map(|accreditation| {
+                    AccreditationModel {
+                        id: Uuid::from_uuid_1(accreditation.id),
+                        name: accreditation.name.clone(),
+                        institution: accreditation.institution.clone(),
+                        start_date: DateTime::from_chrono(accreditation.start_date),
+                        end_date: accreditation
+                            .end_date
+                            .map(|end_date| DateTime::from_chrono(end_date)),
+                        status: accreditation.status.to_string(),
+                    }
+                }),
             },
             created_date: DateTime::from_chrono(certificate.created_date),
             updated_date: match save_type {

@@ -9,7 +9,7 @@ use crate::{
     helpers::SaveType,
 };
 
-pub async fn index(
+pub async fn index (
     certificate: web::Json<CertificateDto>,
     data: web::Data<Option<Database>>,
 ) -> impl Responder {

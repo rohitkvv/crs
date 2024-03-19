@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use crate::{db::CertificateModel, dto::certificate_dto::CertificateDto};
 
-use super::certificate_metadata::Metadata;
+use super::{accreditation::{Accreditation, AccreditationStatus}, certificate_metadata::Metadata};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Certificate {
@@ -53,6 +53,7 @@ impl Certificate {
     ///         score: 0,
     ///         progress: 0.5,
     ///         acquired_date: None,
+    ///         accreditation: None,
     ///     },
     /// };
     /// let user_id = certificate_dto.user_id;
@@ -71,6 +72,16 @@ impl Certificate {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
                 acquired_date: certificate.metadata.acquired_date,
+                accreditation: certificate.metadata.accreditation.map(|accreditation| {
+                    Accreditation {
+                        id: accreditation.id,
+                        name: accreditation.name,
+                        institution: accreditation.institution,
+                        start_date: accreditation.start_date,
+                        end_date: accreditation.end_date,
+                        status: AccreditationStatus::from_str(&accreditation.status),
+                    }
+                })
             },
             created_date: Utc::now(),
             updated_date: None,
@@ -96,6 +107,7 @@ impl Certificate {
     ///         score: 0,
     ///         progress: 0.5,
     ///         acquired_date: None,
+    ///         accreditation: None,
     ///     },
     ///     created_date: DateTime::from_chrono(Utc::now()),
     ///     updated_date: None,
@@ -114,6 +126,16 @@ impl Certificate {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
                 acquired_date: certificate.metadata.acquired_date.map(|dt| dt.into()),
+                accreditation: certificate.metadata.accreditation.map(|accreditation| {
+                    Accreditation {
+                        id: accreditation.id.into(),
+                        name: accreditation.name,
+                        institution: accreditation.institution,
+                        start_date: accreditation.start_date.into(),
+                        end_date: accreditation.end_date.map(|dt| dt.into()),
+                        status: AccreditationStatus::from_str(&accreditation.status),
+                    }
+                }),
             },
             created_date: certificate.created_date.into(),
             updated_date: certificate.updated_date.map(|dt| dt.into()),
