@@ -45,7 +45,10 @@ impl CertificateMetadataDto {
     /// assert_eq!(metadata.is_valid(), false);
     /// ```
     pub fn is_valid(&self) -> bool {
-        self.score <= 100 && self.progress >= 0.0 && self.progress <= 1.0
+        self.score <= 100
+            && self.progress >= 0.0
+            && self.progress <= 1.0
+            && AccreditationDto::is_valid_option(&self.accreditation)
     }
 }
 
@@ -56,4 +59,16 @@ pub struct AccreditationDto {
     pub start_date: DateTime<Utc>,
     pub end_date: Option<DateTime<Utc>>,
     pub status: String,
+}
+
+impl AccreditationDto {
+    /// Validates the option type of accreditation dto
+    pub fn is_valid_option(acc_dto: &Option<AccreditationDto>) -> bool {
+        match acc_dto {
+            Some(acc) => {
+                !acc.name.is_empty() && !acc.institution.is_empty() && !acc.status.is_empty()
+            }
+            None => true,
+        }
+    }
 }
