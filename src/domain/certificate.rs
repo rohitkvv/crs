@@ -3,7 +3,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{db::CertificateModel, dto::certificate_dto::CertificateDto};
+use crate::{dto::certificate_dto::CertificateDto, model::CertificateModel};
 
 use super::{
     accreditation::{Accreditation, AccreditationStatus},
@@ -100,7 +100,7 @@ impl Certificate {
     /// use pretty_assertions::assert_eq;
     /// use mongodb::bson::{DateTime, Uuid};
     /// use crs::domain::certificate::Certificate;
-    /// use crs::db::{CertificateModel, CertificateMetadataModel};
+    /// use crs::model::{CertificateModel, CertificateMetadataModel};
     /// use chrono::Utc;
     ///
     /// let certificate_model = CertificateModel {

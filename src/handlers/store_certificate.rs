@@ -3,10 +3,8 @@ use log::{error, info};
 use mongodb::Database;
 
 use crate::{
-    db::{store_one, CertificateModel},
-    domain::certificate::Certificate,
-    dto::certificate_dto::CertificateDto,
-    helpers::SaveType,
+    db::store_one, domain::certificate::Certificate, dto::certificate_dto::CertificateDto,
+    helpers::SaveType, model::CertificateModel,
 };
 
 pub async fn index(
@@ -49,10 +47,7 @@ mod tests {
         test, web, App,
     };
 
-    use crate::{
-        crs_service,
-        db::{init_db, CertificateModel},
-    };
+    use crate::{crs_service, db::init_db, model::CertificateModel};
 
     #[actix_web::test]
     #[ignore = "requires MongoDB instance running"]
