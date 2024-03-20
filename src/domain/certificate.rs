@@ -21,20 +21,31 @@ pub struct Certificate {
     pub updated_date: Option<DateTime<Utc>>,
 }
 
+fn respond_with_json<T: Serialize>(obj: T) -> HttpResponse<BoxBody> {
+    match serde_json::to_string(&obj) {
+        Ok(body) => HttpResponse::Ok()
+            .content_type(ContentType::json())
+            .body(body),
+        Err(_) => HttpResponse::BadRequest().body("Unable to serialize the response"),
+    }
+}
+
 /// Implement the responder for the Certificate
 impl Responder for Certificate {
     type Body = BoxBody;
 
     fn respond_to(self, _req: &HttpRequest) -> HttpResponse<Self::Body> {
-        let body_result = serde_json::to_string(&self);
+        respond_with_json(self)
+    }
+}
 
-        // Create response and set content type
-        match body_result {
-            Ok(body) => HttpResponse::Ok()
-                .content_type(ContentType::json())
-                .body(body),
-            Err(_) => HttpResponse::BadRequest().body("Unable to serialize the response"),
-        }
+pub struct Certificates(pub Vec<Certificate>);
+
+impl Responder for Certificates {
+    type Body = BoxBody;
+
+    fn respond_to(self, _req: &HttpRequest) -> HttpResponse<Self::Body> {
+        respond_with_json(self.0)
     }
 }
 

@@ -3,7 +3,10 @@ use log::error;
 use mongodb::Database;
 use uuid::Uuid;
 
-use crate::{db::find_certificate_by_id, domain::certificate::Certificate};
+use crate::{
+    db::{find_certificate_by_id, find_certificates_by_user_id},
+    domain::certificate::{Certificate, Certificates},
+};
 
 pub async fn by_id(path: web::Path<(Uuid,)>, data: web::Data<Option<Database>>) -> impl Responder {
     let certificate_id = path.into_inner().0;
@@ -23,6 +26,41 @@ pub async fn by_id(path: web::Path<(Uuid,)>, data: web::Data<Option<Database>>) 
 
                 Either::Right(
                     HttpResponse::InternalServerError().body("Failed to find certificate!"),
+                )
+            }
+            None => {
+                error!("Unable to read state data");
+                Either::Right(HttpResponse::InternalServerError().body("DB State is unavailable"))
+            }
+        }
+    }
+}
+
+pub async fn by_user_id(
+    path: web::Path<(Uuid,)>,
+    data: web::Data<Option<Database>>,
+) -> impl Responder {
+    let user_id = path.into_inner().0;
+
+    if Uuid::is_nil(&user_id) || Uuid::is_max(&user_id) {
+        Either::Right(HttpResponse::BadRequest().body("Invalid user id"))
+    } else {
+        match data.into() {
+            Some(db) => {
+                if let Some(database) = db.as_ref() {
+                    if let Some(certificate_models) =
+                        find_certificates_by_user_id(database, user_id).await
+                    {
+                        let certificates: Vec<Certificate> = certificate_models
+                            .into_iter()
+                            .map(Certificate::from_model)
+                            .collect();
+                        return Either::Left(Certificates(certificates));
+                    }
+                }
+
+                Either::Right(
+                    HttpResponse::InternalServerError().body("Failed to find certificates!"),
                 )
             }
             None => {

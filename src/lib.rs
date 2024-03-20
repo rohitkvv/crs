@@ -21,6 +21,11 @@ pub fn crs_service(cfg: &mut web::ServiceConfig) {
                 web::resource("/{certificate_id}")
                     .route(web::get().to(get_certificate::by_id))
                     .route(web::head().to(HttpResponse::MethodNotAllowed)),
+            )
+            .service(
+                web::resource("/user/{user_id}")
+                    .route(web::get().to(get_certificate::by_user_id))
+                    .route(web::head().to(HttpResponse::MethodNotAllowed)),
             ),
     );
 }
