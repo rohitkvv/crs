@@ -27,7 +27,14 @@ pub async fn by_id(path: web::Path<(Uuid,)>, data: web::Data<Option<Database>>) 
                             .await
                     // unwrap is safe here, since the if block above does the error handling
                     {
-                        return Either::Left(Certificate::from_model(certificate_model));
+                        match Certificate::try_from(certificate_model) {
+                            Ok(certificate) => return Either::Left(certificate),
+                            Err(err) => {
+                                return Either::Right(
+                                    HttpResponse::InternalServerError().body(err.to_string()),
+                                )
+                            }
+                        }
                     }
                 }
 
@@ -61,7 +68,16 @@ pub async fn by_user_id(
                     {
                         let certificates: Vec<Certificate> = certificate_models
                             .into_iter()
-                            .map(Certificate::from_model)
+                            .map(|certificate_model| {
+                                let certificate = Certificate::try_from(certificate_model);
+                                match certificate {
+                                    Ok(certificate) => certificate,
+                                    Err(err) => {
+                                        error!("{}", err);
+                                        panic!("Failed to parse certificate");
+                                    }
+                                }
+                            })
                             .collect();
                         return Either::Left(Certificates(certificates));
                     }

@@ -9,6 +9,7 @@ use super::{
     accreditation::{Accreditation, AccreditationStatus},
     base::Id,
     certificate_metadata::Metadata,
+    error::CertificateParseError,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -50,94 +51,11 @@ impl Responder for Certificates {
     }
 }
 
-impl Certificate {
-    /// Converts the certificate dto to a certificate
-    /// # Examples
-    ///
-    /// ```
-    /// use pretty_assertions::assert_eq;
-    /// use uuid::Uuid;
-    /// use crs::domain::certificate::Certificate;
-    /// use crs::{dto::certificate_dto::CertificateDto, dto::certificate_metadata_dto::CertificateMetadataDto};
-    ///
-    /// let certificate_dto = CertificateDto {
-    ///     user_id: Uuid::new_v4(),
-    ///     account_id: 1,
-    ///     product_id: 1,
-    ///     metadata: CertificateMetadataDto {
-    ///         score: 0,
-    ///         progress: 0.5,
-    ///         acquired_date: None,
-    ///         accreditation: None,
-    ///     },
-    /// };
-    /// let user_id = certificate_dto.user_id;
-    /// let certificate = Certificate::from_dto(certificate_dto);
-    ///
-    /// assert_eq!(certificate.user_id.as_uuid(), user_id);
-    /// assert!(certificate.created_date.timestamp() > 0);
-    /// ```
-    pub fn from_dto(certificate: CertificateDto) -> Certificate {
-        Certificate {
-            id: Id::parse(Uuid::new_v4()).unwrap(),
-            user_id: match Id::parse(certificate.user_id) {
-                Ok(id) => id,
-                Err(invalid_id_error) => panic!("{}", invalid_id_error),
-            },
-            account_id: certificate.account_id,
-            product_id: certificate.product_id,
-            metadata: Metadata {
-                score: certificate.metadata.score,
-                progress: certificate.metadata.progress,
-                acquired_date: certificate.metadata.acquired_date,
-                accreditation: certificate.metadata.accreditation.map(|accreditation| {
-                    Accreditation {
-                        name: accreditation.name,
-                        institution: accreditation.institution,
-                        start_date: accreditation.start_date,
-                        end_date: accreditation.end_date,
-                        status: match AccreditationStatus::from_status_str(&accreditation.status) {
-                            Ok(status) => status,
-                            Err(_) => panic!("Invalid status"),
-                        },
-                    }
-                }),
-            },
-            created_date: Utc::now(),
-            updated_date: None,
-        }
-    }
+impl TryFrom<CertificateModel> for Certificate {
+    type Error = CertificateParseError;
 
-    /// Converts the certificate model to a certificate
-    /// # Examples
-    ///
-    /// ```
-    /// use pretty_assertions::assert_eq;
-    /// use mongodb::bson::{DateTime, Uuid};
-    /// use crs::domain::certificate::Certificate;
-    /// use crs::model::{CertificateModel, CertificateMetadataModel};
-    /// use chrono::Utc;
-    ///
-    /// let certificate_model = CertificateModel {
-    ///     certificate_id: Uuid::default(),
-    ///     user_id: Uuid::default(),
-    ///     account_id: 1,
-    ///     product_id: 1,
-    ///     metadata: CertificateMetadataModel {
-    ///         score: 0,
-    ///         progress: 0.5,
-    ///         acquired_date: None,
-    ///         accreditation: None,
-    ///     },
-    ///     created_date: DateTime::from_chrono(Utc::now()),
-    ///     updated_date: None,
-    /// };
-    /// let certificate_id = certificate_model.certificate_id;
-    /// let certificate = Certificate::from_model(certificate_model);
-    /// assert_eq!(Uuid::from_uuid_1(certificate.id.as_uuid()), certificate_id);
-    /// ```
-    pub fn from_model(certificate: CertificateModel) -> Certificate {
-        Certificate {
+    fn try_from(certificate: CertificateModel) -> Result<Self, Self::Error> {
+        Ok(Certificate {
             id: match Id::parse(certificate.certificate_id.into()) {
                 Ok(id) => id,
                 Err(invalid_id_error) => panic!("{}", invalid_id_error),
@@ -167,6 +85,100 @@ impl Certificate {
             },
             created_date: certificate.created_date.into(),
             updated_date: certificate.updated_date.map(|dt| dt.into()),
-        }
+        })
+    }
+}
+
+impl TryFrom<CertificateDto> for Certificate {
+    type Error = CertificateParseError;
+
+    fn try_from(certificate: CertificateDto) -> Result<Self, Self::Error> {
+        Ok(Certificate {
+            id: Id::parse(Uuid::new_v4()).unwrap(),
+            user_id: match Id::parse(certificate.user_id) {
+                Ok(id) => id,
+                Err(invalid_id_error) => panic!("{}", invalid_id_error),
+            },
+            account_id: certificate.account_id,
+            product_id: certificate.product_id,
+            metadata: Metadata {
+                score: certificate.metadata.score,
+                progress: certificate.metadata.progress,
+                acquired_date: certificate.metadata.acquired_date,
+                accreditation: certificate.metadata.accreditation.map(|accreditation| {
+                    Accreditation {
+                        name: accreditation.name,
+                        institution: accreditation.institution,
+                        start_date: accreditation.start_date,
+                        end_date: accreditation.end_date,
+                        status: match AccreditationStatus::from_status_str(&accreditation.status) {
+                            Ok(status) => status,
+                            Err(_) => panic!("Invalid status"),
+                        },
+                    }
+                }),
+            },
+            created_date: Utc::now(),
+            updated_date: None,
+        })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use chrono::Utc;
+    use mongodb::bson::{DateTime, Uuid as BsonUuid};
+    use pretty_assertions::assert_eq;
+    use uuid::Uuid;
+
+    use crate::{
+        domain::certificate::Certificate,
+        dto::{certificate_dto::CertificateDto, certificate_metadata_dto::CertificateMetadataDto},
+        model::{CertificateMetadataModel, CertificateModel},
+    };
+
+    #[test]
+    fn parse_certificate_dto_should_succeed() {
+        let certificate_dto = CertificateDto {
+            user_id: Uuid::new_v4(),
+            account_id: 1,
+            product_id: 1,
+            metadata: CertificateMetadataDto {
+                score: 0,
+                progress: 0.5,
+                acquired_date: None,
+                accreditation: None,
+            },
+        };
+        let user_id = certificate_dto.user_id;
+        let certificate = Certificate::try_from(certificate_dto).unwrap();
+
+        assert_eq!(certificate.user_id.as_uuid(), user_id);
+        assert!(certificate.created_date.timestamp() > 0);
+    }
+
+    #[test]
+    fn parse_certificate_model_should_succeed() {
+        let certificate_model = CertificateModel {
+            certificate_id: BsonUuid::default(),
+            user_id: BsonUuid::default(),
+            account_id: 1,
+            product_id: 1,
+            metadata: CertificateMetadataModel {
+                score: 0,
+                progress: 0.5,
+                acquired_date: None,
+                accreditation: None,
+            },
+            created_date: DateTime::from_chrono(Utc::now()),
+            updated_date: None,
+        };
+        let certificate_id = certificate_model.certificate_id;
+        let certificate = Certificate::try_from(certificate_model).unwrap();
+
+        assert_eq!(
+            BsonUuid::from_uuid_1(certificate.id.as_uuid()),
+            certificate_id
+        );
     }
 }

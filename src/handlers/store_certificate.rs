@@ -16,15 +16,16 @@ pub async fn index(
     } else {
         match data.into() {
             Some(db) => {
-                let cert_to_store = Certificate::from_dto(certificate.0);
-                let doc = CertificateModel::from_domain(&cert_to_store, SaveType::Insert);
-                if let Some(database) = db.as_ref() {
-                    if let Some(insert_one_result) = store_one(database, &doc).await {
-                        info!(
-                            "The inserted record id is: {}",
-                            insert_one_result.inserted_id
-                        );
-                        return Either::Left(cert_to_store);
+                if let Ok(cert_to_store) = Certificate::try_from(certificate.0) {
+                    let doc = CertificateModel::from_domain(&cert_to_store, SaveType::Insert);
+                    if let Some(database) = db.as_ref() {
+                        if let Some(insert_one_result) = store_one(database, &doc).await {
+                            info!(
+                                "The inserted record id is: {}",
+                                insert_one_result.inserted_id
+                            );
+                            return Either::Left(cert_to_store);
+                        }
                     }
                 }
                 Either::Right(
