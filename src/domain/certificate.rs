@@ -10,14 +10,22 @@ use super::{
     base::Id,
     certificate_metadata::Metadata,
     error::CertificateParseError,
+    organization::Organization,
+    person::Person,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Certificate {
     pub id: Id,
     pub user_id: Id,
+    // The person who received the certificate
+    pub recipient: Person,
     pub account_id: u32,
     pub product_id: u32,
+    pub name: String,
+    pub description: String,
+    // An organization that issued the certificate
+    pub authority: Organization,
     pub metadata: Metadata,
     pub created_date: DateTime<Utc>,
     pub updated_date: Option<DateTime<Utc>>,
@@ -64,8 +72,12 @@ impl TryFrom<CertificateModel> for Certificate {
                 Ok(id) => id,
                 Err(invalid_id_error) => panic!("{}", invalid_id_error),
             },
+            recipient: Person::default(),
             account_id: certificate.account_id,
             product_id: certificate.product_id,
+            name: "".to_string(),
+            description: "".to_string(),
+            authority: Organization::default(),
             metadata: Metadata {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
@@ -99,8 +111,12 @@ impl TryFrom<CertificateDto> for Certificate {
                 Ok(id) => id,
                 Err(invalid_id_error) => panic!("{}", invalid_id_error),
             },
+            recipient: Person::default(),
             account_id: certificate.account_id,
             product_id: certificate.product_id,
+            name: "".to_string(),
+            description: "".to_string(),
+            authority: Organization::default(),
             metadata: Metadata {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,

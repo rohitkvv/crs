@@ -33,6 +33,36 @@ impl std::fmt::Display for InvalidIdError {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct InvalidEmailError;
+
+impl Error for InvalidEmailError {
+    fn description(&self) -> &str {
+        "failed to parse email"
+    }
+}
+
+impl std::fmt::Display for InvalidEmailError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        "provided email is not valid".fmt(f)
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct InvalidPhoneError;
+
+impl Error for InvalidPhoneError {
+    fn description(&self) -> &str {
+        "failed to parse phone number"
+    }
+}
+
+impl std::fmt::Display for InvalidPhoneError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        "provided phone number is not valid".fmt(f)
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct CertificateParseError;
 
 impl Error for CertificateParseError {
