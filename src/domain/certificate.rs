@@ -6,13 +6,8 @@ use uuid::Uuid;
 use crate::{dto::certificate_dto::CertificateDto, model::CertificateModel};
 
 use super::{
-    accreditation::{Accreditation, AccreditationStatus},
-    base::Id,
-    certificate_metadata::Metadata,
-    error::CertificateParseError,
-    organization::Organization,
-    person::Person,
-    validity::Validity,
+    base::Id, certificate_metadata::Metadata, error::CertificateParseError,
+    organization::Organization, person::Person, validity::Validity,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -85,18 +80,6 @@ impl TryFrom<CertificateModel> for Certificate {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
                 acquired_date: certificate.metadata.acquired_date.map(|dt| dt.into()),
-                accreditation: certificate.metadata.accreditation.map(|accreditation| {
-                    Accreditation {
-                        name: accreditation.name,
-                        institution: accreditation.institution,
-                        start_date: accreditation.start_date.into(),
-                        end_date: accreditation.end_date.map(|dt| dt.into()),
-                        status: match AccreditationStatus::from_status_str(&accreditation.status) {
-                            Ok(status) => status,
-                            Err(_) => panic!("Invalid status"),
-                        },
-                    }
-                }),
             },
             created_date: certificate.created_date.into(),
             updated_date: certificate.updated_date.map(|dt| dt.into()),
@@ -125,18 +108,6 @@ impl TryFrom<CertificateDto> for Certificate {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
                 acquired_date: certificate.metadata.acquired_date,
-                accreditation: certificate.metadata.accreditation.map(|accreditation| {
-                    Accreditation {
-                        name: accreditation.name,
-                        institution: accreditation.institution,
-                        start_date: accreditation.start_date,
-                        end_date: accreditation.end_date,
-                        status: match AccreditationStatus::from_status_str(&accreditation.status) {
-                            Ok(status) => status,
-                            Err(_) => panic!("Invalid status"),
-                        },
-                    }
-                }),
             },
             created_date: Utc::now(),
             updated_date: None,
@@ -188,7 +159,6 @@ mod tests {
                 score: 0,
                 progress: 0.5,
                 acquired_date: None,
-                accreditation: None,
             },
             created_date: DateTime::from_chrono(Utc::now()),
             updated_date: None,
