@@ -5,20 +5,27 @@ use uuid::Uuid;
 
 use crate::{
     db::{find_certificate_by_id, find_certificates_by_user_id},
-    domain::certificate::{Certificate, Certificates},
+    domain::{
+        base::Id,
+        certificate::{Certificate, Certificates},
+    },
 };
 
 pub async fn by_id(path: web::Path<(Uuid,)>, data: web::Data<Option<Database>>) -> impl Responder {
-    let certificate_id = path.into_inner().0;
+    let certificate_id_result = Id::parse(path.into_inner().0);
 
-    if Uuid::is_nil(&certificate_id) || Uuid::is_max(&certificate_id) {
-        Either::Right(HttpResponse::BadRequest().body("Invalid ceritificate id"))
+    if certificate_id_result.is_err() {
+        Either::Right(
+            HttpResponse::BadRequest().body(certificate_id_result.err().unwrap().to_string()),
+        )
     } else {
         match data.into() {
             Some(db) => {
                 if let Some(database) = db.as_ref() {
                     if let Some(certificate_model) =
-                        find_certificate_by_id(database, certificate_id).await
+                        find_certificate_by_id(database, certificate_id_result.unwrap().as_uuid())
+                            .await
+                    // unwrap is safe here, since the if block above does the error handling
                     {
                         return Either::Left(Certificate::from_model(certificate_model));
                     }
@@ -40,16 +47,17 @@ pub async fn by_user_id(
     path: web::Path<(Uuid,)>,
     data: web::Data<Option<Database>>,
 ) -> impl Responder {
-    let user_id = path.into_inner().0;
+    let user_id_result = Id::parse(path.into_inner().0);
 
-    if Uuid::is_nil(&user_id) || Uuid::is_max(&user_id) {
-        Either::Right(HttpResponse::BadRequest().body("Invalid user id"))
+    if user_id_result.is_err() {
+        Either::Right(HttpResponse::BadRequest().body(user_id_result.err().unwrap().to_string()))
     } else {
         match data.into() {
             Some(db) => {
                 if let Some(database) = db.as_ref() {
                     if let Some(certificate_models) =
-                        find_certificates_by_user_id(database, user_id).await
+                        find_certificates_by_user_id(database, user_id_result.unwrap().as_uuid())
+                            .await
                     {
                         let certificates: Vec<Certificate> = certificate_models
                             .into_iter()

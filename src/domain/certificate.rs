@@ -7,13 +7,14 @@ use crate::{dto::certificate_dto::CertificateDto, model::CertificateModel};
 
 use super::{
     accreditation::{Accreditation, AccreditationStatus},
+    base::Id,
     certificate_metadata::Metadata,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Certificate {
-    pub id: Uuid,
-    pub user_id: Uuid,
+    pub id: Id,
+    pub user_id: Id,
     pub account_id: u32,
     pub product_id: u32,
     pub metadata: Metadata,
@@ -73,13 +74,16 @@ impl Certificate {
     /// let user_id = certificate_dto.user_id;
     /// let certificate = Certificate::from_dto(certificate_dto);
     ///
-    /// assert_eq!(certificate.user_id, user_id);
+    /// assert_eq!(certificate.user_id.as_uuid(), user_id);
     /// assert!(certificate.created_date.timestamp() > 0);
     /// ```
     pub fn from_dto(certificate: CertificateDto) -> Certificate {
         Certificate {
-            id: Uuid::new_v4(),
-            user_id: certificate.user_id,
+            id: Id::parse(Uuid::new_v4()).unwrap(),
+            user_id: match Id::parse(certificate.user_id) {
+                Ok(id) => id,
+                Err(invalid_id_error) => panic!("{}", invalid_id_error),
+            },
             account_id: certificate.account_id,
             product_id: certificate.product_id,
             metadata: Metadata {
@@ -130,12 +134,18 @@ impl Certificate {
     /// };
     /// let certificate_id = certificate_model.certificate_id;
     /// let certificate = Certificate::from_model(certificate_model);
-    /// assert_eq!(Uuid::from_uuid_1(certificate.id), certificate_id);
+    /// assert_eq!(Uuid::from_uuid_1(certificate.id.as_uuid()), certificate_id);
     /// ```
     pub fn from_model(certificate: CertificateModel) -> Certificate {
         Certificate {
-            id: certificate.certificate_id.into(),
-            user_id: certificate.user_id.into(),
+            id: match Id::parse(certificate.certificate_id.into()) {
+                Ok(id) => id,
+                Err(invalid_id_error) => panic!("{}", invalid_id_error),
+            },
+            user_id: match Id::parse(certificate.user_id.into()) {
+                Ok(id) => id,
+                Err(invalid_id_error) => panic!("{}", invalid_id_error),
+            },
             account_id: certificate.account_id,
             product_id: certificate.product_id,
             metadata: Metadata {
