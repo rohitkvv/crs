@@ -12,8 +12,8 @@ pub struct Person {
 }
 
 impl Person {
-    /// **Temporary default implementation**
-    pub fn default() -> Self {
+    /// **Temporary new implementation**
+    fn new() -> Self {
         Person {
             id: Id::parse(Uuid::new_v4()).unwrap(),
             name: Name {
@@ -24,5 +24,11 @@ impl Person {
             email: Email::parse("test@email.com".to_string()).unwrap(),
             phone: None,
         }
+    }
+}
+
+impl Default for Person {
+    fn default() -> Self {
+        Person::new()
     }
 }

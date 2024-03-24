@@ -85,8 +85,8 @@ pub struct Address {
 }
 
 impl Address {
-    /// **Temporary default implementation**
-    pub fn default() -> Self {
+    /// **Temporary new implementation**
+    fn new() -> Self {
         Address {
             street: "".to_string(),
             city: "".to_string(),
@@ -94,5 +94,11 @@ impl Address {
             country: "".to_string(),
             postal_code: "".to_string(),
         }
+    }
+}
+
+impl Default for Address {
+    fn default() -> Self {
+        Address::new()
     }
 }

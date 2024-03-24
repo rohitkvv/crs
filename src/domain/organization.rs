@@ -13,8 +13,8 @@ pub struct Organization {
 }
 
 impl Organization {
-    /// **Temporary default implementation**
-    pub fn default() -> Self {
+    /// **Temporary new implementation**
+    fn new() -> Self {
         Organization {
             id: Id::parse(Uuid::new_v4()).unwrap(),
             name: "".to_string(),
@@ -22,5 +22,11 @@ impl Organization {
             phone: Phone::parse("987654321".to_string()).unwrap(),
             address: Address::default(),
         }
+    }
+}
+
+impl Default for Organization {
+    fn default() -> Self {
+        Organization::new()
     }
 }

@@ -5,3 +5,4 @@ pub mod certificate_metadata;
 pub mod error;
 pub mod organization;
 pub mod person;
+pub mod validity;

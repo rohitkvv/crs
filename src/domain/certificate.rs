@@ -12,6 +12,7 @@ use super::{
     error::CertificateParseError,
     organization::Organization,
     person::Person,
+    validity::Validity,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -26,6 +27,7 @@ pub struct Certificate {
     pub description: String,
     // An organization that issued the certificate
     pub authority: Organization,
+    pub validity: Option<Validity>,
     pub metadata: Metadata,
     pub created_date: DateTime<Utc>,
     pub updated_date: Option<DateTime<Utc>>,
@@ -78,6 +80,7 @@ impl TryFrom<CertificateModel> for Certificate {
             name: "".to_string(),
             description: "".to_string(),
             authority: Organization::default(),
+            validity: None,
             metadata: Metadata {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
@@ -117,6 +120,7 @@ impl TryFrom<CertificateDto> for Certificate {
             name: "".to_string(),
             description: "".to_string(),
             authority: Organization::default(),
+            validity: None,
             metadata: Metadata {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
