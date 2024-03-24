@@ -18,7 +18,6 @@ pub struct CertificateModel {
 pub struct CertificateMetadataModel {
     pub score: u32,
     pub progress: f32,
-    pub acquired_date: Option<DateTime>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -38,12 +37,8 @@ impl CertificateModel {
             account_id: certificate.account_id,
             product_id: certificate.product_id,
             metadata: CertificateMetadataModel {
-                score: certificate.metadata.score,
-                progress: certificate.metadata.progress,
-                acquired_date: certificate
-                    .metadata
-                    .acquired_date
-                    .map(DateTime::from_chrono),
+                score: certificate.assessment.score,
+                progress: certificate.assessment.progress,
             },
             created_date: DateTime::from_chrono(certificate.created_date),
             updated_date: match save_type {

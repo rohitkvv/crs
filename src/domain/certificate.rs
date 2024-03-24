@@ -6,8 +6,8 @@ use uuid::Uuid;
 use crate::{dto::certificate_dto::CertificateDto, model::CertificateModel};
 
 use super::{
-    base::Id, certificate_metadata::Metadata, error::CertificateParseError,
-    organization::Organization, person::Person, validity::Validity,
+    assessment::Assessment, base::Id, error::CertificateParseError, organization::Organization,
+    person::Person, validity::Validity,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -23,7 +23,7 @@ pub struct Certificate {
     // An organization that issued the certificate
     pub authority: Organization,
     pub validity: Option<Validity>,
-    pub metadata: Metadata,
+    pub assessment: Assessment,
     pub created_date: DateTime<Utc>,
     pub updated_date: Option<DateTime<Utc>>,
 }
@@ -76,10 +76,9 @@ impl TryFrom<CertificateModel> for Certificate {
             description: "".to_string(),
             authority: Organization::default(),
             validity: None,
-            metadata: Metadata {
+            assessment: Assessment {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
-                acquired_date: certificate.metadata.acquired_date.map(|dt| dt.into()),
             },
             created_date: certificate.created_date.into(),
             updated_date: certificate.updated_date.map(|dt| dt.into()),
@@ -104,10 +103,9 @@ impl TryFrom<CertificateDto> for Certificate {
             description: "".to_string(),
             authority: Organization::default(),
             validity: None,
-            metadata: Metadata {
+            assessment: Assessment {
                 score: certificate.metadata.score,
                 progress: certificate.metadata.progress,
-                acquired_date: certificate.metadata.acquired_date,
             },
             created_date: Utc::now(),
             updated_date: None,
@@ -158,7 +156,6 @@ mod tests {
             metadata: CertificateMetadataModel {
                 score: 0,
                 progress: 0.5,
-                acquired_date: None,
             },
             created_date: DateTime::from_chrono(Utc::now()),
             updated_date: None,
