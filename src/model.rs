@@ -37,7 +37,7 @@ impl CertificateModel {
             account_id: certificate.account_id,
             product_id: certificate.product_id,
             metadata: CertificateMetadataModel {
-                score: certificate.assessment.score,
+                score: 0,
                 progress: certificate.assessment.progress,
             },
             created_date: DateTime::from_chrono(certificate.created_date),

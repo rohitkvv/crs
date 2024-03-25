@@ -102,3 +102,28 @@ impl Default for Address {
         Address::new()
     }
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Score {
+    pub value: u32,
+    pub max: u32,
+    pub min: u32,
+    pub passing_score: u32,
+}
+
+impl Score {
+    pub fn new(value: u32, max: u32, min: u32, passing_score: u32) -> Self {
+        Score {
+            value,
+            max,
+            min,
+            passing_score,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum AssessmentResult {
+    Fail,
+    Pass,
+}

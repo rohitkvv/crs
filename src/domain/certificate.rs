@@ -6,8 +6,12 @@ use uuid::Uuid;
 use crate::{dto::certificate_dto::CertificateDto, model::CertificateModel};
 
 use super::{
-    assessment::Assessment, base::Id, error::CertificateParseError, organization::Organization,
-    person::Person, validity::Validity,
+    assessment::Assessment,
+    base::{AssessmentResult, Id, Score},
+    error::CertificateParseError,
+    organization::Organization,
+    person::Person,
+    validity::Validity,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -77,8 +81,9 @@ impl TryFrom<CertificateModel> for Certificate {
             authority: Organization::default(),
             validity: None,
             assessment: Assessment {
-                score: certificate.metadata.score,
+                score: None,
                 progress: certificate.metadata.progress,
+                result: AssessmentResult::Pass,
             },
             created_date: certificate.created_date.into(),
             updated_date: certificate.updated_date.map(|dt| dt.into()),
@@ -104,8 +109,14 @@ impl TryFrom<CertificateDto> for Certificate {
             authority: Organization::default(),
             validity: None,
             assessment: Assessment {
-                score: certificate.metadata.score,
+                score: Some(Score::new(
+                    certificate.metadata.score,
+                    certificate.metadata.score,
+                    0,
+                    certificate.metadata.score,
+                )),
                 progress: certificate.metadata.progress,
+                result: AssessmentResult::Pass,
             },
             created_date: Utc::now(),
             updated_date: None,
