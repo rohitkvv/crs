@@ -33,7 +33,7 @@ impl CertificateModel {
     pub fn from_domain(certificate: &Certificate, save_type: SaveType) -> CertificateModel {
         CertificateModel {
             certificate_id: Uuid::from_uuid_1(certificate.id.as_uuid()),
-            user_id: Uuid::from_uuid_1(certificate.user_id.as_uuid()),
+            user_id: Uuid::from_uuid_1(certificate.recipient.id.as_uuid()),
             account_id: certificate.account_id,
             product_id: certificate.product_id,
             metadata: CertificateMetadataModel {

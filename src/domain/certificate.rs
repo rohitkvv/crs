@@ -7,7 +7,7 @@ use crate::{dto::certificate_dto::CertificateDto, model::CertificateModel};
 
 use super::{
     assessment::Assessment,
-    base::{AssessmentResult, Id, Score},
+    base::{AssessmentResult, Email, Id, Name, Score},
     error::CertificateParseError,
     organization::Organization,
     person::Person,
@@ -17,7 +17,6 @@ use super::{
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Certificate {
     pub id: Id,
-    pub user_id: Id,
     // The person who received the certificate
     pub recipient: Person,
     pub account_id: u32,
@@ -69,10 +68,6 @@ impl TryFrom<CertificateModel> for Certificate {
                 Ok(id) => id,
                 Err(invalid_id_error) => panic!("{}", invalid_id_error),
             },
-            user_id: match Id::parse(certificate.user_id.into()) {
-                Ok(id) => id,
-                Err(invalid_id_error) => panic!("{}", invalid_id_error),
-            },
             recipient: Person::default(),
             account_id: certificate.account_id,
             product_id: certificate.product_id,
@@ -97,11 +92,16 @@ impl TryFrom<CertificateDto> for Certificate {
     fn try_from(certificate: CertificateDto) -> Result<Self, Self::Error> {
         Ok(Certificate {
             id: Id::parse(Uuid::new_v4()).unwrap(),
-            user_id: match Id::parse(certificate.user_id) {
-                Ok(id) => id,
-                Err(invalid_id_error) => panic!("{}", invalid_id_error),
+            recipient: Person {
+                id: Id(certificate.recipient.id),
+                name: Name {
+                    first_name: certificate.recipient.first_name,
+                    middle_name: None,
+                    last_name: certificate.recipient.last_name
+                },
+                email: Email(certificate.recipient.email),
+                phone: None
             },
-            recipient: Person::default(),
             account_id: certificate.account_id,
             product_id: certificate.product_id,
             name: "".to_string(),
@@ -133,16 +133,22 @@ mod tests {
 
     use crate::{
         domain::certificate::Certificate,
-        dto::{certificate_dto::CertificateDto, certificate_metadata_dto::CertificateMetadataDto},
+        dto::{certificate_dto::CertificateDto, certificate_metadata_dto::CertificateMetadataDto, recipient_dto::RecipientDto},
         model::{CertificateMetadataModel, CertificateModel},
     };
 
     #[test]
     fn parse_certificate_dto_should_succeed() {
         let certificate_dto = CertificateDto {
-            user_id: Uuid::new_v4(),
             account_id: 1,
             product_id: 1,
+            recipient: RecipientDto {
+                id: Uuid::new_v4(),
+                first_name: "John".to_string(),
+                last_name: "Doe".to_string(),
+                email: "".to_string(),
+                phone: "".to_string(),
+            },
             metadata: CertificateMetadataDto {
                 score: 0,
                 progress: 0.5,
@@ -150,10 +156,10 @@ mod tests {
                 accreditation: None,
             },
         };
-        let user_id = certificate_dto.user_id;
+        let user_id = certificate_dto.recipient.id;
         let certificate = Certificate::try_from(certificate_dto).unwrap();
 
-        assert_eq!(certificate.user_id.as_uuid(), user_id);
+        assert_eq!(certificate.recipient.id.as_uuid(), user_id);
         assert!(certificate.created_date.timestamp() > 0);
     }
 

@@ -4,7 +4,7 @@ use uuid::Uuid;
 use super::error::{InvalidEmailError, InvalidIdError, InvalidPhoneError};
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Id(Uuid);
+pub struct Id(pub Uuid);
 
 impl Id {
     pub fn parse(id: Uuid) -> Result<Id, InvalidIdError> {
@@ -38,7 +38,7 @@ impl std::fmt::Display for Name {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Email(String);
+pub struct Email(pub String);
 
 impl Email {
     pub fn parse(email: String) -> Result<Email, InvalidEmailError> {
