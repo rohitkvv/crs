@@ -97,10 +97,10 @@ impl TryFrom<CertificateDto> for Certificate {
                 name: Name {
                     first_name: certificate.recipient.first_name,
                     middle_name: None,
-                    last_name: certificate.recipient.last_name
+                    last_name: certificate.recipient.last_name,
                 },
                 email: Email(certificate.recipient.email),
-                phone: None
+                phone: None,
             },
             account_id: certificate.account_id,
             product_id: certificate.product_id,
@@ -133,7 +133,10 @@ mod tests {
 
     use crate::{
         domain::certificate::Certificate,
-        dto::{certificate_dto::CertificateDto, certificate_metadata_dto::CertificateMetadataDto, recipient_dto::RecipientDto},
+        dto::{
+            certificate_dto::CertificateDto, certificate_metadata_dto::CertificateMetadataDto,
+            recipient_dto::RecipientDto,
+        },
         model::{CertificateMetadataModel, CertificateModel},
     };
 
