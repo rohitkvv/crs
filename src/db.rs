@@ -50,16 +50,12 @@ pub async fn find_certificate_by_id(
     certificate_id: uuid::Uuid,
 ) -> Option<CertificateModel> {
     let coll = db.collection::<CertificateModel>("certificates");
-    match coll
+    coll
         .find_one(
             doc! {"certificate_id": Uuid::from_uuid_1(certificate_id)},
             None,
         )
-        .await
-    {
-        Ok(find_one_result) => find_one_result,
-        Err(_) => None,
-    }
+        .await.unwrap_or_default()
 }
 
 pub async fn find_certificates_by_user_id(
