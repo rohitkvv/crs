@@ -39,7 +39,7 @@ pub async fn init_db() -> Option<Database> {
 
 pub async fn store_one(db: &Database, doc: &CertificateModel) -> Option<InsertOneResult> {
     let coll = db.collection::<CertificateModel>("certificates");
-    match coll.insert_one(doc, None).await {
+    match coll.insert_one(doc).await {
         Ok(insert_one_result) => Some(insert_one_result),
         Err(_) => None,
     }
@@ -50,12 +50,9 @@ pub async fn find_certificate_by_id(
     certificate_id: uuid::Uuid,
 ) -> Option<CertificateModel> {
     let coll = db.collection::<CertificateModel>("certificates");
-    coll.find_one(
-        doc! {"certificate_id": Uuid::from_uuid_1(certificate_id)},
-        None,
-    )
-    .await
-    .unwrap_or_default()
+    coll.find_one(doc! {"certificate_id": Uuid::from_uuid_1(certificate_id)})
+        .await
+        .unwrap_or_default()
 }
 
 pub async fn find_certificates_by_user_id(
@@ -64,7 +61,7 @@ pub async fn find_certificates_by_user_id(
 ) -> Option<Vec<CertificateModel>> {
     let coll = db.collection::<CertificateModel>("certificates");
     match coll
-        .find(doc! {"user_id": Uuid::from_uuid_1(user_id)}, None)
+        .find(doc! {"user_id": Uuid::from_uuid_1(user_id)})
         .await
     {
         Ok(find_result) => {
