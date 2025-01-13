@@ -57,7 +57,7 @@ mod tests {
 
         // Clear any data currently in the users collection.
         db.collection::<CertificateModel>("certificates")
-            .drop(None)
+            .drop()
             .await
             .expect("drop collection should succeed");
 
@@ -88,7 +88,7 @@ mod tests {
 
         // Clear any data currently in the users collection.
         db.collection::<CertificateModel>("certificates")
-            .drop(None)
+            .drop()
             .await
             .expect("drop collection should succeed");
 
