@@ -29,7 +29,7 @@ pub async fn init_db() -> Option<Database> {
                 let db = client.database(DB_NAME);
                 return Some(db);
             }
-            Err(err) => error!("Unable to initialize DB. {}", err.to_string()),
+            Err(err) => error!("Unable to initialize DB. {}", err),
         }
     }
 
@@ -39,10 +39,7 @@ pub async fn init_db() -> Option<Database> {
 
 pub async fn store_one(db: &Database, doc: &CertificateModel) -> Option<InsertOneResult> {
     let coll = db.collection::<CertificateModel>("certificates");
-    match coll.insert_one(doc).await {
-        Ok(insert_one_result) => Some(insert_one_result),
-        Err(_) => None,
-    }
+    (coll.insert_one(doc).await).ok()
 }
 
 pub async fn find_certificate_by_id(
