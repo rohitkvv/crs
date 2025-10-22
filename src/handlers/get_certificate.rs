@@ -22,18 +22,16 @@ pub async fn by_id(path: web::Path<(Uuid,)>, data: web::Data<Option<Database>>) 
         match data.into() {
             Some(db) => {
                 if let Some(database) = db.as_ref() {
-                    if let Some(certificate_model) =
-                        find_certificate_by_id(database, certificate_id_result.unwrap().as_uuid())
-                            .await
-                    // unwrap is safe here, since the if block above does the error handling
-                    {
-                        match Certificate::try_from(certificate_model) {
-                            Ok(certificate) => return Either::Left(certificate),
-                            Err(err) => {
-                                return Either::Right(
+                    if let Ok(certificate_id) = certificate_id_result {
+                        if let Some(certificate_model) =
+                            find_certificate_by_id(database, certificate_id.as_uuid()).await
+                        {
+                            return match Certificate::try_from(certificate_model) {
+                                Ok(certificate) => Either::Left(certificate),
+                                Err(err) => Either::Right(
                                     HttpResponse::InternalServerError().body(err.to_string()),
-                                )
-                            }
+                                ),
+                            };
                         }
                     }
                 }
@@ -62,24 +60,25 @@ pub async fn by_user_id(
         match data.into() {
             Some(db) => {
                 if let Some(database) = db.as_ref() {
-                    if let Some(certificate_models) =
-                        find_certificates_by_user_id(database, user_id_result.unwrap().as_uuid())
-                            .await
-                    {
-                        let certificates: Vec<Certificate> = certificate_models
-                            .into_iter()
-                            .map(|certificate_model| {
-                                let certificate = Certificate::try_from(certificate_model);
-                                match certificate {
-                                    Ok(certificate) => certificate,
-                                    Err(err) => {
-                                        error!("{}", err);
-                                        panic!("Failed to parse certificate");
+                    if let Ok(user_id) = user_id_result {
+                        if let Some(certificate_models) =
+                            find_certificates_by_user_id(database, user_id.as_uuid()).await
+                        {
+                            let certificates: Vec<Certificate> = certificate_models
+                                .into_iter()
+                                .map(|certificate_model| {
+                                    let certificate = Certificate::try_from(certificate_model);
+                                    match certificate {
+                                        Ok(certificate) => certificate,
+                                        Err(err) => {
+                                            error!("{}", err);
+                                            panic!("Failed to parse certificate");
+                                        }
                                     }
-                                }
-                            })
-                            .collect();
-                        return Either::Left(Certificates(certificates));
+                                })
+                                .collect();
+                            return Either::Left(Certificates(certificates));
+                        }
                     }
                 }
 
